@@ -62,15 +62,13 @@ METIS integra un sistema di apprendimento continuo che ottimizza i risultati bas
 - **Personalizzazione delle Risposte**: I suggerimenti futuri sono adattati alle preferenze dell'utente.
 - **Prevenzione di Manipolazioni Maligne**: Il feedback è tracciato per singolo utente, impedendo interferenze negative nel sistema generale.
 
-## Metriche di Monitoraggio
-
+### Metriche di Monitoraggio
 Il monitoraggio delle prestazioni del sistema avviene tramite metriche chiave:
 - **Precisione e Rilevanza (F1 Score)**: Combinazione di precisione e richiamo per misurare l’accuratezza delle risposte.
 - **Tempo Medio di Risposta**: Per valutare l’efficienza del sistema.
 - **Miglioramento Continuo**: Analisi di come le metriche migliorano nel tempo grazie all’integrazione del feedback.
 
-## Integrazione con Sistemi di Ticketing
-
+### Integrazione con Sistemi di Ticketing
 METIS si integra con i sistemi di ticketing aziendali per:
 - **Elaborazione Automatica delle Risposte ai Ticket**: METIS genera risposte preliminari alle richieste degli utenti, che possono includere guide, soluzioni o documentazione utile.
 - **Supporto agli Operatori**: Gli operatori ricevono una guida risolutiva dettagliata per affrontare il problema in modo più efficiente.
