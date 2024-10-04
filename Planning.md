@@ -82,6 +82,6 @@
 | **7. RRF (Ranked Retrieval Fusion)** | Implementare e testare l'algoritmo RRF per ottimizzare i risultati aggregati in modo efficiente, bilanciando precisione e rilevanza. | 10 giorni |
 | 8. Implementazione di una interfaccia grafica | Implementare un'interfaccia utente per migliorare l'interazione e la raccolta del feedback, integrata con il sistema di ticketing e ottimizzata per Teams. | 4 giorni |
 | **9. Pulsante per interrompere i messaggi** | Aggiungere e testare il pulsante di interruzione durante la generazione dei messaggi da parte del chatbot per migliorare l'esperienza utente. | 5 giorni |
-| **10. Apprendimento tramite feedback** | Implementare il sistema di raccolta feedback dagli utenti e costruire un meccanismo di apprendimento per adattare i risultati alle preferenze personali di ciascun utente. | 12 giorni |
+| **10. Apprendimento tramite feedback** | Implementare il sistema di raccolta feedback dagli utenti e costruire un meccanismo di apprendimento per adattare i risultati alle preferenze personali di ciascun utente. | 12 giorni | 
 | **11. Introduzione delle metriche di monitoraggio** | Definire, implementare e testare metriche di precisione (F1 score), efficienza (tempo medio di risposta), e monitorare l'apprendimento del sistema tramite i feedback degli utenti nel tempo. | 4 giorni |
 | **12. Integrazione con il sistema di ticketing** | Integrare il sistema di ticketing per ottimizzare la gestione dei ticket, generando risposte preliminari tramite il chatbot e inviandole all'operatore responsabile del ticket. | 7 giorni |
