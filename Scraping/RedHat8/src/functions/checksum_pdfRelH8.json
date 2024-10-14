@@ -2,302 +2,302 @@
     "counter": 75,
     "Red_Hat_Enterprise_Linux-8-8.10_Release_Notes-en-US.pdf": {
         "checksum": "02da1b6c33e9cb0e4b298458878f508558bcafd3770eb6012b28c0f8ab23e625",
-        "timestamp": "2024-10-14T12:49:21.880Z"
+        "timestamp": "2024-10-14T14:14:16.170Z"
     },
     "Red_Hat_Enterprise_Linux-8-8.9_Release_Notes-en-US.pdf": {
         "checksum": "68dfab7afea0f6bdf8da9645dbd585cd8566475c08d54dee60baf6282c2df973",
-        "timestamp": "2024-10-14T12:49:25.899Z"
+        "timestamp": "2024-10-14T14:14:19.772Z"
     },
     "Red_Hat_Enterprise_Linux-8-8.8_Release_Notes-en-US.pdf": {
         "checksum": "e3d0c04410ab78c51b69c42b3a230e678f775e03b85197ed2f0f12068b6ee73c",
-        "timestamp": "2024-10-14T12:49:29.014Z"
+        "timestamp": "2024-10-14T14:14:23.434Z"
     },
     "Red_Hat_Enterprise_Linux-8-8.7_Release_Notes-en-US.pdf": {
         "checksum": "23facbcc3559ce864f987e67a3ed634b4ba053e500d4f7929b9c7606ede45ba4",
-        "timestamp": "2024-10-14T12:49:32.004Z"
+        "timestamp": "2024-10-14T14:14:27.007Z"
     },
     "Red_Hat_Enterprise_Linux-8-8.6_Release_Notes-en-US.pdf": {
         "checksum": "72b6c6c1d7563b0d50ad8296ef48a2f56aa44cf8119d33493c079e5c136fbfc2",
-        "timestamp": "2024-10-14T12:49:36.168Z"
+        "timestamp": "2024-10-14T14:14:30.411Z"
     },
     "Red_Hat_Enterprise_Linux-8-8.5_Release_Notes-en-US.pdf": {
         "checksum": "1ab80268eee2603e0ed26ef9ad94d53627ae6568b1f91097ae8bbcac345f2a1e",
-        "timestamp": "2024-10-14T12:49:40.333Z"
+        "timestamp": "2024-10-14T14:14:33.817Z"
     },
     "Red_Hat_Enterprise_Linux-8-8.4_Release_Notes-en-US.pdf": {
         "checksum": "e410a0f5143d805bb89c3b0fca7c743d788360b32a0ba1f278087331e0208b67",
-        "timestamp": "2024-10-14T12:49:43.585Z"
+        "timestamp": "2024-10-14T14:14:38.380Z"
     },
     "Red_Hat_Enterprise_Linux-8-8.3_Release_Notes-en-US.pdf": {
         "checksum": "814bdbc1d6e9c556755d5d7bd2ec6c5962cc98de746d0b43621755a39daf2fa2",
-        "timestamp": "2024-10-14T12:49:47.697Z"
+        "timestamp": "2024-10-14T14:14:41.660Z"
     },
     "Red_Hat_Enterprise_Linux-8-8.2_Release_Notes-en-US.pdf": {
         "checksum": "51619514c53dd856ae5785d7433499833fa6de10403953a1db0339daf91f2e5c",
-        "timestamp": "2024-10-14T12:49:50.402Z"
+        "timestamp": "2024-10-14T14:14:46.823Z"
     },
     "Red_Hat_Enterprise_Linux-8-8.1_Release_Notes-en-US.pdf": {
         "checksum": "8495e7a8fe24d5eac9d54d3036118faf6839c96372cb34ff95ff795f5bddb947",
-        "timestamp": "2024-10-14T12:49:54.034Z"
+        "timestamp": "2024-10-14T14:14:51.085Z"
     },
     "Red_Hat_Enterprise_Linux-8-8.0_Release_Notes-en-US.pdf": {
         "checksum": "0ca7162da1015966efc75ec10ff932c0794de147fe9ea279f100aea993677266",
-        "timestamp": "2024-10-14T12:49:57.418Z"
+        "timestamp": "2024-10-14T14:14:55.019Z"
     },
     "Red_Hat_Enterprise_Linux-8-Considerations_in_adopting_RHEL_8-en-US.pdf": {
         "checksum": "924188ce5acc3d2774ca87833591bfe6f399ddc11689a6da74285f6f56368128",
-        "timestamp": "2024-10-14T12:50:00.713Z"
+        "timestamp": "2024-10-14T14:14:58.668Z"
     },
     "Red_Hat_Enterprise_Linux-8-Generating_sos_reports_for_technical_support-en-US.pdf": {
         "checksum": "06fd99840fd7f0791e5195f5b6c8ebc7e032221b029899ffe4907512b88a4c2c",
-        "timestamp": "2024-10-14T12:50:04.353Z"
+        "timestamp": "2024-10-14T14:15:03.729Z"
     },
     "Red_Hat_Enterprise_Linux-8-Package_manifest-en-US.pdf": {
         "checksum": "6f9e8c344db961f58ae990b2367423a33c44d52d0fb939e128f708d466bc1c71",
-        "timestamp": "2024-10-14T12:50:07.865Z"
+        "timestamp": "2024-10-14T14:15:06.517Z"
     },
     "Red_Hat_Enterprise_Linux-8-Interactively_installing_RHEL_from_installation_media-en-US.pdf": {
         "checksum": "335703a2355cfffc064cbdda3b159123c7879b6a161cece60e8d369a71c4a596",
-        "timestamp": "2024-10-14T12:50:11.178Z"
+        "timestamp": "2024-10-14T14:15:10.285Z"
     },
     "Red_Hat_Enterprise_Linux-8-Interactively_installing_RHEL_over_the_network-en-US.pdf": {
         "checksum": "894362b0aa1d75ba74f7a6b223d1d9964796a2fe7f7934ddf7e037dc877540a6",
-        "timestamp": "2024-10-14T12:50:15.595Z"
+        "timestamp": "2024-10-14T14:15:13.307Z"
     },
     "Red_Hat_Enterprise_Linux-8-Automatically_installing_RHEL-en-US.pdf": {
         "checksum": "29d40e336d46baa62ef811ecb6c1d355fdfb98c7659e734105d37b7adf8b7b70",
-        "timestamp": "2024-10-14T12:50:18.055Z"
+        "timestamp": "2024-10-14T14:15:16.273Z"
     },
     "Red_Hat_Enterprise_Linux-8-Installing_managing_and_removing_user-space_components-en-US.pdf": {
         "checksum": "b0831ebccd8ecb2fe556cc4913eaa8157b33c7f29ef9b85da1ed6b68d87e7a0d",
-        "timestamp": "2024-10-14T12:50:20.819Z"
+        "timestamp": "2024-10-14T14:15:19.401Z"
     },
     "Red_Hat_Enterprise_Linux-8-Customizing_Anaconda-en-US.pdf": {
         "checksum": "102287684ba97779df13e65521e6faf506d6338998b578a0901ab750585e2ed7",
-        "timestamp": "2024-10-14T12:50:23.666Z"
+        "timestamp": "2024-10-14T14:15:22.518Z"
     },
     "Red_Hat_Enterprise_Linux-8-Upgrading_from_RHEL_7_to_RHEL_8-en-US.pdf": {
         "checksum": "0d3adae0c627a2e0ae656224133851c5a61c92d205522a04b5919183f6d501d3",
-        "timestamp": "2024-10-14T12:50:26.113Z"
+        "timestamp": "2024-10-14T14:15:25.664Z"
     },
     "Red_Hat_Enterprise_Linux-8-Upgrading_from_RHEL_6_to_RHEL_8-en-US.pdf": {
         "checksum": "55febd2c59a0061a1abba0032505fd2c59354581cd220dd3c64b0151f75ea1cd",
-        "timestamp": "2024-10-14T12:50:28.452Z"
+        "timestamp": "2024-10-14T14:15:29.311Z"
     },
     "Red_Hat_Enterprise_Linux-8-Converting_from_a_Linux_distribution_to_RHEL_using_the_Convert2RHEL_utility-en-US.pdf": {
         "checksum": "68ea42b89e8386f5ab4cecca2ac84e7cbff7450cfc09887c6806628945ccd4af",
-        "timestamp": "2024-10-14T12:50:31.421Z"
+        "timestamp": "2024-10-14T14:15:32.780Z"
     },
     "Red_Hat_Enterprise_Linux-8-Composing_a_customized_RHEL_system_image-en-US.pdf": {
         "checksum": "b71f07325f918f3ee8cd79bbe35bf29ac116a9c0a6bd026667eef0c8528140e1",
-        "timestamp": "2024-10-14T12:50:34.615Z"
+        "timestamp": "2024-10-14T14:15:36.295Z"
     },
     "Red_Hat_Enterprise_Linux-8-Composing_installing_and_managing_RHEL_for_Edge_images-en-US.pdf": {
         "checksum": "8f298268ce1a70935d665d63a896fa50d79d5a83c5f565743c60c3bcd5567f0c",
-        "timestamp": "2024-10-14T12:50:37.685Z"
+        "timestamp": "2024-10-14T14:15:39.847Z"
     },
     "Red_Hat_Enterprise_Linux-8-Creating_customized_images_by_using_Insights_image_builder-en-US.pdf": {
         "checksum": "84a121c0959505dd8e6067123c044e0806fdcb7ddc2d9f0132025be279b2d6a3",
-        "timestamp": "2024-10-14T12:50:40.810Z"
+        "timestamp": "2024-10-14T14:15:43.639Z"
     },
     "Red_Hat_Enterprise_Linux-8-Configuring_basic_system_settings-en-US.pdf": {
         "checksum": "1041808880ee2a601d46bdacd98804cfcfdc639b348aef1a8142250dd3de3bb8",
-        "timestamp": "2024-10-14T12:50:44.027Z"
+        "timestamp": "2024-10-14T14:15:47.492Z"
     },
     "Red_Hat_Enterprise_Linux-8-Automating_system_administration_by_using_RHEL_system_roles-en-US.pdf": {
         "checksum": "2b89897409190deeda7b17a0ee4254391c55efe19c8d0e0cec83b04ac1a150b9",
-        "timestamp": "2024-10-14T12:50:46.431Z"
+        "timestamp": "2024-10-14T14:15:52.385Z"
     },
     "Red_Hat_Enterprise_Linux-8-Managing_systems_using_the_RHEL_8_web_console-en-US.pdf": {
         "checksum": "8d4fc1e9c7d767278c7ef6a69cc5586f1cf0a2d03b0e0990bd6886d0cefe7c3b",
-        "timestamp": "2024-10-14T12:50:48.921Z"
+        "timestamp": "2024-10-14T14:15:55.455Z"
     },
     "Red_Hat_Enterprise_Linux-8-Configuring_a_Red_Hat_High_Availability_cluster_on_Red_Hat_OpenStack_Platform-en-US.pdf": {
         "checksum": "879fdd2f92804ca1a82b7258f3b4d845326b0c0c4a7631f98b70f0cd6ba331af",
-        "timestamp": "2024-10-14T12:50:51.861Z"
+        "timestamp": "2024-10-14T14:15:59.775Z"
     },
     "Red_Hat_Enterprise_Linux-8-Using_the_desktop_environment_in_RHEL_8-en-US.pdf": {
         "checksum": "103ebddb59d6c6ae48a3a2781710171ad2765f469e6e7cfe34e81a4d648770de",
-        "timestamp": "2024-10-14T12:50:55.279Z"
+        "timestamp": "2024-10-14T14:16:04.178Z"
     },
     "Red_Hat_Enterprise_Linux-8-Managing_networking_infrastructure_services-en-US.pdf": {
         "checksum": "556d01781ae1e08094bbd20eb4b7735ee994fb1acf1d9e2378afa327c9cf9876",
-        "timestamp": "2024-10-14T12:50:57.845Z"
+        "timestamp": "2024-10-14T14:16:09.740Z"
     },
     "Red_Hat_Enterprise_Linux-8-Deploying_different_types_of_servers-en-US.pdf": {
         "checksum": "694da41d9646a1e3d95103f4dc55d5c399ccb14db4262289a71eb344f1cd0b83",
-        "timestamp": "2024-10-14T12:51:00.218Z"
+        "timestamp": "2024-10-14T14:16:13.369Z"
     },
     "Red_Hat_Enterprise_Linux-8-Managing_monitoring_and_updating_the_kernel-en-US.pdf": {
         "checksum": "ba2c63ab204772fa49ffff9edfdbcd1c2122b2506319021f7d6de337c0741919",
-        "timestamp": "2024-10-14T12:51:06.548Z"
+        "timestamp": "2024-10-14T14:16:17.092Z"
     },
     "Red_Hat_Enterprise_Linux-8-Recording_sessions-en-US.pdf": {
         "checksum": "5b5def4f57efad2445b8bf1c6c2e573f882e14fe8fe6d4bc24fdbf5f4b62cbd3",
-        "timestamp": "2024-10-14T12:51:09.012Z"
+        "timestamp": "2024-10-14T14:16:20.363Z"
     },
     "Red_Hat_Enterprise_Linux-8-Monitoring_and_managing_system_status_and_performance-en-US.pdf": {
         "checksum": "ff71e9b3d10cf4290234dcb0f9df9e3f57a2df3facc87d4ff7072386abc65099",
-        "timestamp": "2024-10-14T12:51:11.617Z"
+        "timestamp": "2024-10-14T14:16:23.492Z"
     },
     "Red_Hat_Enterprise_Linux-8-Using_systemd_unit_files_to_customize_and_optimize_your_system-en-US.pdf": {
         "checksum": "8a8581848c3f77c382f64ce0152d438493c5c540ba7eea369b6fd413dc0e0306",
-        "timestamp": "2024-10-14T12:51:14.178Z"
+        "timestamp": "2024-10-14T14:16:26.996Z"
     },
     "Red_Hat_Enterprise_Linux-8-Managing_and_monitoring_security_updates-en-US.pdf": {
         "checksum": "934f66ba93a00b7791e9a4e5df54c21ed15b2074036ab10a1b6956b4ede9127a",
-        "timestamp": "2024-10-14T12:51:16.606Z"
+        "timestamp": "2024-10-14T14:16:30.405Z"
     },
     "Red_Hat_Enterprise_Linux-8-Security_hardening-en-US.pdf": {
         "checksum": "73f2ee9fda93e9f59c110b23f0e1457f00120f733d1ab2116a9968d1dfbeaa90",
-        "timestamp": "2024-10-14T12:51:21.349Z"
+        "timestamp": "2024-10-14T14:16:33.256Z"
     },
     "Red_Hat_Enterprise_Linux-8-Using_SELinux-en-US.pdf": {
         "checksum": "0220a1b4896055f34c964ebbbd18c917feb9010b8c11ab9563c68fcb4c31c461",
-        "timestamp": "2024-10-14T12:51:24.483Z"
+        "timestamp": "2024-10-14T14:16:39.419Z"
     },
     "Red_Hat_Enterprise_Linux-8-Securing_networks-en-US.pdf": {
         "checksum": "e70bea4067b903cd32b0b08851e640b5566e31e60fc5292d6892e05449734edd",
-        "timestamp": "2024-10-14T12:51:26.841Z"
+        "timestamp": "2024-10-14T14:16:49.131Z"
     },
     "Red_Hat_Enterprise_Linux-8-Configuring_and_managing_networking-en-US.pdf": {
         "checksum": "d154d03925871cd157488a9e6a2893a7b9d2b3781a247fc5d186dab569adf64d",
-        "timestamp": "2024-10-14T12:51:29.678Z"
+        "timestamp": "2024-10-14T14:16:56.243Z"
     },
     "Red_Hat_Enterprise_Linux-8-Configuring_InfiniBand_and_RDMA_networks-en-US.pdf": {
         "checksum": "e6f1f48619c7a097673bb13878975faae7054723c4f620fb75c3b003b697d648",
-        "timestamp": "2024-10-14T12:51:32.069Z"
+        "timestamp": "2024-10-14T14:16:59.945Z"
     },
     "Red_Hat_Enterprise_Linux-8-Migrating_to_Identity_Management_on_RHEL_8-en-US.pdf": {
         "checksum": "b2b48ec48c0c25d1c6e99c68a0ed78f7f786fda96930f6477ef79ad6b6d8012c",
-        "timestamp": "2024-10-14T12:51:35.334Z"
+        "timestamp": "2024-10-14T14:17:03.851Z"
     },
     "Red_Hat_Enterprise_Linux-8-Planning_Identity_Management-en-US.pdf": {
         "checksum": "5f29aed6fb3c021618ce53d8326058dbd19048f7357e928efe848d983df29e0f",
-        "timestamp": "2024-10-14T12:51:38.252Z"
+        "timestamp": "2024-10-14T14:17:07.304Z"
     },
     "Red_Hat_Enterprise_Linux-8-Installing_Identity_Management-en-US.pdf": {
         "checksum": "314e01a63c4e2aa4fd9e9cce29ff2b8dbc6cf8e2a397434bf1019f750dc96cfe",
-        "timestamp": "2024-10-14T12:51:40.750Z"
+        "timestamp": "2024-10-14T14:17:11.087Z"
     },
     "Red_Hat_Enterprise_Linux-8-Using_Ansible_to_install_and_manage_Identity_Management-en-US.pdf": {
         "checksum": "29eae7432e58bd9d1223036124f9ed787db76855ce26b3f0bc326ccc9903315f",
-        "timestamp": "2024-10-14T12:51:44.064Z"
+        "timestamp": "2024-10-14T14:17:14.425Z"
     },
     "Red_Hat_Enterprise_Linux-8-Accessing_Identity_Management_services-en-US.pdf": {
         "checksum": "62dd27444b727e269014a94401be83800112f0fb5733932db64e9f1eadb497e9",
-        "timestamp": "2024-10-14T12:51:46.601Z"
+        "timestamp": "2024-10-14T14:17:19.482Z"
     },
     "Red_Hat_Enterprise_Linux-8-Managing_smart_card_authentication-en-US.pdf": {
         "checksum": "0d7360f26476717fb914bd7dac14368e3ab8df40eec3c6cf34ade0f2a9861fdd",
-        "timestamp": "2024-10-14T12:51:48.928Z"
+        "timestamp": "2024-10-14T14:17:23.141Z"
     },
     "Red_Hat_Enterprise_Linux-8-Integrating_RHEL_systems_directly_with_Windows_Active_Directory-en-US.pdf": {
         "checksum": "e2e0cc9224134c9cac641af14dac6cc197a5370e22c2045828f55323d85d6b73",
-        "timestamp": "2024-10-14T12:51:51.279Z"
+        "timestamp": "2024-10-14T14:17:26.246Z"
     },
     "Red_Hat_Enterprise_Linux-8-Configuring_and_managing_Identity_Management-en-US.pdf": {
         "checksum": "ac26042dd9fb36bb0e1ac987543b7bde5de2729ec83ef0d96f10cfb275061724",
-        "timestamp": "2024-10-14T12:51:53.186Z"
+        "timestamp": "2024-10-14T14:17:30.649Z"
     },
     "Red_Hat_Enterprise_Linux-8-Configuring_authentication_and_authorization_in_RHEL-en-US.pdf": {
         "checksum": "81b1019c55f641f542a7c85c245512f0d6a108b47a682c41548a465d4225b17f",
-        "timestamp": "2024-10-14T12:51:56.008Z"
+        "timestamp": "2024-10-14T14:17:34.346Z"
     },
     "Red_Hat_Enterprise_Linux-8-Managing_IdM_users_groups_hosts_and_access_control_rules-en-US.pdf": {
         "checksum": "0a4f70679bc159fcb1a456fe4325edffc41a67e39fbcedd705fb2ef8ae6d6fc8",
-        "timestamp": "2024-10-14T12:51:57.602Z"
+        "timestamp": "2024-10-14T14:17:40.200Z"
     },
     "Red_Hat_Enterprise_Linux-8-Managing_certificates_in_IdM-en-US.pdf": {
         "checksum": "b307fc6a162290c89f181c6a66fc10197565185d1885c7c381618da682d2bef6",
-        "timestamp": "2024-10-14T12:51:59.923Z"
+        "timestamp": "2024-10-14T14:17:43.933Z"
     },
     "Red_Hat_Enterprise_Linux-8-Working_with_vaults_in_Identity_Management-en-US.pdf": {
         "checksum": "ce2ceeed73cb4d3bb74e2ab0e5fdc7c8c3a42fe2185569bee14e2a532abfe35e",
-        "timestamp": "2024-10-14T12:52:02.139Z"
+        "timestamp": "2024-10-14T14:17:47.794Z"
     },
     "Red_Hat_Enterprise_Linux-8-Working_with_DNS_in_Identity_Management-en-US.pdf": {
         "checksum": "98d8fa37cef3f1647aed350cfd93f931d3bae247fbe5839e586094f04c983a00",
-        "timestamp": "2024-10-14T12:52:03.696Z"
+        "timestamp": "2024-10-14T14:17:51.583Z"
     },
     "Red_Hat_Enterprise_Linux-8-Using_IdM_Healthcheck_to_monitor_your_IdM_environment-en-US.pdf": {
         "checksum": "482fba20cb31c66467cfa12bb2efe565ec7892cb3794b51f5a8d16c3295c7d45",
-        "timestamp": "2024-10-14T12:52:06.144Z"
+        "timestamp": "2024-10-14T14:17:55.080Z"
     },
     "Red_Hat_Enterprise_Linux-8-Tuning_performance_in_Identity_Management-en-US.pdf": {
         "checksum": "8d0e5443793c35e7323291e3a8c3fc57e3fdb7beea8af18dd9b0b1d7786d4cca",
-        "timestamp": "2024-10-14T12:52:08.504Z"
+        "timestamp": "2024-10-14T14:17:58.757Z"
     },
     "Red_Hat_Enterprise_Linux-8-Preparing_for_disaster_recovery_with_Identity_Management-en-US.pdf": {
         "checksum": "bbd1ff2f5694f56f8edd399687808bf726e6e0876e8646371cb80e399ad107e3",
-        "timestamp": "2024-10-14T12:52:11.150Z"
+        "timestamp": "2024-10-14T14:18:02.366Z"
     },
     "Red_Hat_Enterprise_Linux-8-Performing_disaster_recovery_with_Identity_Management-en-US.pdf": {
         "checksum": "d8fb9e1a4d65900c879bddc489cfd854d5ad72c1da200f6aa0e51e256c1709b1",
-        "timestamp": "2024-10-14T12:52:13.556Z"
+        "timestamp": "2024-10-14T14:18:06.562Z"
     },
     "Red_Hat_Enterprise_Linux-8-Managing_file_systems-en-US.pdf": {
         "checksum": "f9b5e75d2ed2a60408cb58919413744414590877beed7130f0069793a2aaf252",
-        "timestamp": "2024-10-14T12:52:15.907Z"
+        "timestamp": "2024-10-14T14:18:10.745Z"
     },
     "Red_Hat_Enterprise_Linux-8-Managing_storage_devices-en-US.pdf": {
         "checksum": "2e399286fa01dd0ce15ea42f90bb95650017339de0ce40974f8c3b28aa1a638f",
-        "timestamp": "2024-10-14T12:52:18.348Z"
+        "timestamp": "2024-10-14T14:18:15.803Z"
     },
     "Red_Hat_Enterprise_Linux-8-Configuring_and_managing_logical_volumes-en-US.pdf": {
         "checksum": "2dc61c3238150b7302918c5b5ba7a8695d34f03508e2b3d838f603e48961fb5b",
-        "timestamp": "2024-10-14T12:52:20.823Z"
+        "timestamp": "2024-10-14T14:18:19.847Z"
     },
     "Red_Hat_Enterprise_Linux-8-Configuring_device_mapper_multipath-en-US.pdf": {
         "checksum": "41a0e196d1e33e82416127f39b8378fc1c8177faf1b3128d6585a315707ff261",
-        "timestamp": "2024-10-14T12:52:23.012Z"
+        "timestamp": "2024-10-14T14:18:23.564Z"
     },
     "Red_Hat_Enterprise_Linux-8-Deduplicating_and_compressing_storage-en-US.pdf": {
         "checksum": "c9a49163329deebb6c3248d1f7462d24392c4f4759a8637f884e29fa4c0c0dc8",
-        "timestamp": "2024-10-14T12:52:25.328Z"
+        "timestamp": "2024-10-14T14:18:27.483Z"
     },
     "Red_Hat_Enterprise_Linux-8-Deduplicating_and_compressing_logical_volumes_on_RHEL-en-US.pdf": {
         "checksum": "e64f83e79f050cd59baa19ecd6e0a22281c6bcff3110baa3efa6d72a28e4c8c9",
-        "timestamp": "2024-10-14T12:52:27.779Z"
+        "timestamp": "2024-10-14T14:18:31.131Z"
     },
     "Red_Hat_Enterprise_Linux-8-Configuring_GFS2_file_systems-en-US.pdf": {
         "checksum": "a8d71de1769f2ff7f58cfda9f0816bd226d1043dd5e55baa20e7d8a4a297db78",
-        "timestamp": "2024-10-14T12:52:29.959Z"
+        "timestamp": "2024-10-14T14:18:35.319Z"
     },
     "Red_Hat_Enterprise_Linux-8-Configuring_and_managing_high_availability_clusters-en-US.pdf": {
         "checksum": "219320a59912541f5f4e3c0a22b71c03e4fd8c8e0c295e2ecb751539d0758d85",
-        "timestamp": "2024-10-14T12:52:32.418Z"
+        "timestamp": "2024-10-14T14:18:39.526Z"
     },
     "Red_Hat_Enterprise_Linux-8-Building_running_and_managing_containers-en-US.pdf": {
         "checksum": "92c5adba62eefd9e3e70aaa492e63b3e07b4cd53a92f36fef59bcca8cb82a786",
-        "timestamp": "2024-10-14T12:52:34.569Z"
+        "timestamp": "2024-10-14T14:18:43.757Z"
     },
     "Red_Hat_Enterprise_Linux-8-Configuring_and_managing_virtualization-en-US.pdf": {
-        "checksum": "602063c55b14655b4569218a68c5f92df35ef778c294dbbf5946f24e83a74b8a",
-        "timestamp": "2024-10-14T12:52:37.080Z"
+        "checksum": "47347563027e32b5692b83400d511807aae90cdb7d9acffedf82f53a12ae8d79",
+        "timestamp": "2024-10-14T14:18:48.345Z"
     },
     "Red_Hat_Enterprise_Linux-8-Configuring_and_managing_cloud-init_for_RHEL_8-en-US.pdf": {
         "checksum": "df533e3f0e0f191aa1c9c18dfc21a1982e87f3513d9f6bc7f8dd317edc928060",
-        "timestamp": "2024-10-14T12:52:39.281Z"
+        "timestamp": "2024-10-14T14:18:51.850Z"
     },
     "Red_Hat_Enterprise_Linux-8-Deploying_RHEL_8_on_Amazon_Web_Services-en-US.pdf": {
         "checksum": "e6e9278434eee082ddc025192311d89b9c727d380a84080f230410e8e86374c7",
-        "timestamp": "2024-10-14T12:52:41.500Z"
+        "timestamp": "2024-10-14T14:18:55.411Z"
     },
     "Red_Hat_Enterprise_Linux-8-Deploying_RHEL_8_on_Google_Cloud_Platform-en-US.pdf": {
         "checksum": "c4cc649a36a27a5363c93a121cafb0c0142e5b2ac9150862738ae8a1498c847f",
-        "timestamp": "2024-10-14T12:52:43.698Z"
+        "timestamp": "2024-10-14T14:18:59.306Z"
     },
     "Red_Hat_Enterprise_Linux-8-Deploying_RHEL_8_on_Microsoft_Azure-en-US.pdf": {
         "checksum": "3b6a2de63815a06f3264b2b0797a6d652151a8254a52001a7ba94c8797a6d723",
-        "timestamp": "2024-10-14T12:52:45.851Z"
+        "timestamp": "2024-10-14T14:19:03.130Z"
     },
     "Red_Hat_Enterprise_Linux-8-Developing_C_and_CPP_applications_in_RHEL_8-en-US.pdf": {
         "checksum": "722135a6d363bf53e290804728ebd4bb91f8344d73a1665bb4c0f4e3c4ed1b20",
-        "timestamp": "2024-10-14T12:52:47.997Z"
+        "timestamp": "2024-10-14T14:19:07.539Z"
     },
     "Red_Hat_Enterprise_Linux-8-Packaging_and_distributing_software-en-US.pdf": {
         "checksum": "5706929789d4552e97672f2293cf189e42943ff80da141f7b636afccb250413c",
-        "timestamp": "2024-10-14T12:52:50.188Z"
+        "timestamp": "2024-10-14T14:19:11.015Z"
     }
 }
