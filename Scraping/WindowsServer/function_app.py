@@ -171,7 +171,7 @@ def http_trigger_windows_server(req: func.HttpRequest) -> func.HttpResponse:
                         json_data["documents"].append({
                             "file_name": os.path.basename(output_pdf),
                             "checksum": pdf_checksum,
-                            "timestamp": get_current_timestamp()  # Aggiunge il timestamp corrente
+                            "timestamp": get_current_timestamp()
                         })
                         
                         start_page = current_page
