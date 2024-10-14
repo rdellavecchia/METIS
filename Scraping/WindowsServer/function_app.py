@@ -114,13 +114,13 @@ def http_trigger_windows_server(req: func.HttpRequest) -> func.HttpResponse:
     # Caricamento del checksum precedente
     previous_checksum = load_previous_checksum(json_output_file, pdf_document)
 
-    # Scarica il PDF dal link
+    # Download del PDF dal link
     download_pdf(pdf_url, pdf_document)
 
     # Calcolo del checksum del PDF scaricato
     current_checksum = calculate_sha256(pdf_document)
 
-    # Verifica se il checksum è cambiato rispetto al precedente
+    # Controllo del checksum
     if previous_checksum == current_checksum:
         logger.info("Il PDF non è cambiato. Nessun aggiornamento necessario.")
         return func.HttpResponse(
@@ -147,11 +147,10 @@ def http_trigger_windows_server(req: func.HttpRequest) -> func.HttpResponse:
             "documents": []
         }
 
-        # Aggiunta del checksum del PDF originale con timestamp
         json_data["documents"].append({
             "file_name": os.path.basename(pdf_document),
             "checksum": current_checksum,
-            "timestamp": get_current_timestamp()  # Aggiunge il timestamp corrente
+            "timestamp": get_current_timestamp()
         })
 
         while current_page < num_pages:
@@ -195,7 +194,7 @@ def http_trigger_windows_server(req: func.HttpRequest) -> func.HttpResponse:
             json_data["documents"].append({
                 "file_name": os.path.basename(output_pdf),
                 "checksum": pdf_checksum,
-                "timestamp": get_current_timestamp()  # Aggiunge il timestamp corrente
+                "timestamp": get_current_timestamp()
             })
 
         # Aggiornamento del conteggio totale dei documenti
