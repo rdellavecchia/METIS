@@ -29,10 +29,10 @@ app.http('httpTriggerScraping', {
     handler: async (request, context) => {
 
         try {
-            logger.info("Richiesta ricevuta. Avvio processo di scraping...");
+            logger.info("Richiesta ricevuta. Controllo dei checksum e avvio del processo di scraping...");
 
-            /* Avvio dello scraping in background senza bloccare il client */
-            scrapeAndDownloadDocuments();
+            /* Avvio del controllo dei checksum e dello scraping in background senza bloccare il client */
+            await handleChecksumAndScraping();
 
             context.res = {
                 status: 200,
@@ -61,11 +61,35 @@ app.http('httpTriggerScraping', {
     }
 });
 
-// Funzione per gestire lo scraping e il download
-async function scrapeAndDownloadDocuments() {
+// Funzione per verficare l'esisenza del file checksum_pdfRelH9.json
+async function handleChecksumAndScraping() {
+    const checksumFilePath = path.join(__dirname, 'checksum_pdfRelH9.json');
+
+    /* Controllo dell'esistenza del file checksum_pdfRelH9.json */
+    if (fs.existsSync(checksumFilePath)) {
+        const checksumData = JSON.parse(fs.readFileSync(checksumFilePath, 'utf8'));
+
+        if (Object.keys(checksumData).length === 1 && checksumData.counter === 0) {
+            logger.warn("Il file checksum_pdfRelH9.json è vuoto. Avvio della sonda e creazione dei nuovi checksum...");
+            await scrapeAndDownloadDocuments();
+        }
+        else {
+            logger.info("Il file checksum_pdfRelH9.json non è vuoto. Avvio del confronto dei checksum...");
+            await scrapeAndCompareChecksums(checksumData);
+        }
+
+    }
+    else {
+        logger.warn("Il file checksum non esiste. Creazione del file e avvio dello scraping...");
+        await scrapeAndDownloadDocuments();
+    }
+
+}
+
+// Funzione per gestire lo scraping e il confronto dei checksum
+async function scrapeAndCompareChecksums(oldChecksumData) {
     try {
         /* Avvio del browser Puppeteer */
-        logger.info("Avvio del browser Puppeteer...");
         browser = await puppeteer.launch({
             headless: true,
             args: ['--start-maximized', '--window-size=1920,1080'],
@@ -84,7 +108,107 @@ async function scrapeAndDownloadDocuments() {
         }
 
         /* Navigazione alla pagina di documentazione RedHat 9 */
-        logger.info("Navigazione alla pagina di documentazione...");
+        await page.goto("https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9", { waitUntil: 'networkidle2' });
+
+        /* Selezione degli elementi e iterazione con la pagina web */
+        const sections = await page.$$eval("a[href*='/en/documentation/red_hat_enterprise_linux/9/html/']", links => {
+            const uniqueLinks = new Set(links.map(link => link.href));
+            return Array.from(uniqueLinks);
+        });
+
+        if (sections.length === 0) {
+            throw new Error("Nessuna sezione trovata");
+        }
+
+        const newChecksumData = { counter: 0 };
+        const changedFiles = [];
+
+        for (const sectionLink of sections) {
+            const page = await browser.newPage();
+            try {
+                await page.goto(sectionLink, { waitUntil: 'networkidle2' });
+
+                // Ricerca dell'elemento PDF nella pagina
+                const pdfElement = await page.$("#pdf-download a");
+                if (pdfElement) {
+                    const pdfHref = await pdfElement.getProperty("href");
+                    const pdfUrl = await pdfHref.jsonValue();
+
+                    // Download del PDF
+                    const filePath = await downloadPDF(pdfUrl, path.join(__dirname, 'documentsRelH9'));
+                    
+                    const checksum = await calculateChecksum(filePath);
+                    const fileName = path.basename(pdfUrl);
+                    newChecksumData.counter += 1;
+                    newChecksumData[fileName] = {
+                        checksum: checksum,
+                        timestamp: new Date().toISOString()
+                    };
+
+                    // Confronto dei checksum
+                    if (oldChecksumData[fileName] && oldChecksumData[fileName].checksum !== checksum) {
+                        const pdfName = path.basename(fileName);
+                        logger.info(`Il documento ${pdfName} è cambiato.`);
+                        
+                        // Download e sostituzione del documento aggiornato
+                        const updated_file = await downloadPDF(pdfUrl, path.join(__dirname, 'documentsRelH9'));
+                        const updated_pdfName = path.basename(updated_file);
+                        changedFiles.push(updated_pdfName);
+                    }
+
+                } 
+
+            } catch (error) {
+                logger.error(`Errore durante la navigazione o il download dalla sezione ${sectionLink}: ${error.message}`);
+            } finally {
+                await page.close();
+            }
+        }
+
+        // Log dei risultati del confronto
+        if (changedFiles.length > 0) {
+            logger.info(`Documenti cambiati: ${changedFiles.join(", ")}`);
+        }
+        else {
+            logger.info("Nessun documento è stato modificato.");
+        }
+
+        // Aggiornamento del file checksum
+        fs.writeFileSync(path.join(__dirname, 'checksum_pdfRelH9.json'), JSON.stringify(newChecksumData, null, 4), 'utf8');
+        logger.info("Checksum aggiornati con successo.");
+
+    } catch (error) {
+        logger.error(`Errore durante lo scraping: ${error.message}`);
+    } finally {
+        if (browser) {
+            await browser.close();
+            logger.info("Browser chiuso con successo.");
+        }
+    }
+}
+
+// Funzione per gestire lo scraping e il download
+async function scrapeAndDownloadDocuments() {
+    try {
+        /* Avvio del browser Puppeteer */
+        browser = await puppeteer.launch({
+            headless: true,
+            args: ['--start-maximized', '--window-size=1920,1080'],
+            defaultViewport: null,
+        });
+        const page = await browser.newPage();
+
+        /* Lettura e impostazione dei cookie */
+        if (fs.existsSync('./cookies.json')) {
+            const cookiesString = fs.readFileSync('./cookies.json', 'utf8');
+            const cookies = JSON.parse(cookiesString);
+            await page.setCookie(...cookies);
+        } else {
+            logger.error("Il file dei cookie non esiste. Impossibile procedere senza autenticazione.");
+            throw new Error("File dei cookie non trovato.");
+        }
+
+        /* Navigazione alla pagina di documentazione RedHat 9 */
         await page.goto("https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9", { waitUntil: 'networkidle2' });
 
         /* Selezione degli elementi e iterazione con la pagina web */
@@ -99,7 +223,6 @@ async function scrapeAndDownloadDocuments() {
             throw new Error(message);
         } else {
             logger.info(`Numero di sezioni trovate: ${sections.length}`);
-            sections.forEach(link => logger.info(`Trovato link alla sezione: ${link}`));
         }
 
         const downloadedFiles = [];
@@ -109,7 +232,6 @@ async function scrapeAndDownloadDocuments() {
             const page = await browser.newPage();
             try {
                 // Navigazione al link della sezione
-                logger.info(`Navigazione alla sezione: ${sectionLink}`);
                 await page.goto(sectionLink, { waitUntil: 'networkidle2' });
 
                 // Ricerca dell'elemento PDF nella pagina
@@ -117,7 +239,6 @@ async function scrapeAndDownloadDocuments() {
                 if (pdfElement) {
                     const pdfHref = await pdfElement.getProperty("href");
                     const pdfUrl = await pdfHref.jsonValue();
-                    logger.info(`Trovato link PDF: ${pdfUrl}`);
 
                     // Download del PDF
                     const filePath = await downloadPDF(pdfUrl, path.join(__dirname, 'documentsRelH9'));
@@ -141,7 +262,6 @@ async function scrapeAndDownloadDocuments() {
             await browser.close();
             logger.info("Browser chiuso con successo.");
         }
-        context.done();
     }
 }
 
@@ -176,13 +296,11 @@ async function downloadPDF(pdfUrl, outputFolder) {
         /* Attendere il completamento dello stream mediante una promise */
         await new Promise((resolve, reject) => {
             writer.on('finish', async () => {
-                logger.info(`PDF scaricato con successo: ${filePath}`);
 
                 // Calcolo del checksum dopo il download
                 try {
                     const checksum = await calculateChecksum(filePath);
                     await saveChecksumToJSON(fileName, checksum); // Salva il checksum nel file JSON
-                    logger.info(`Checksum (SHA-256) del file ${fileName} salvato con successo nel file JSON.`);
                 } catch (err) {
                     logger.error(`Errore durante il calcolo o il salvataggio del checksum: ${err.message}`);
                 }
