@@ -50,24 +50,63 @@ nlp_it = spacy.load('it_core_news_sm')
 nlp_en = spacy.load('en_core_web_sm')
 
 
-def extract_sentences_from_page(page, nlp_model):
-    """Estrae le frasi da una singola pagina del PDF usando spaCy."""
-    text = page.get_text()  # Estrai il testo dalla pagina
-    doc = nlp_model(text)   # Processa il testo con il modello spaCy
-    return [sent.text for sent in doc.sents]  # Ritorna le frasi processate
+def extract_sentences_from_page(page_number, pdf_path, nlp_model):
+    
+    """Estrazione delle frasi da una singola pagina del PDF usando spaCy."""
+    
+    document = fitz.open(pdf_path) # Apertura del PDF all'interno di ciascun processo
+    
+    page = document.load_page(page_number) # Estrazione della pagina dal PDF
+    text = page.get_text()  # Estrazione del testo da una pagina
+    doc = nlp_model(text)   # Elaborazione del testo con il modello spaCy
+    
+    document.close() # Chiusura del documento
+    
+    return [sent.text for sent in doc.sents]  # Ritorno delle frasi processate
+
+def create_text_units(sentences, unit_size=3):
+    
+    """Creazione delle unità di testo costituite da `unit_size` frasi contigue."""
+    
+    units = []
+    buffer = []
+    
+    for sentence in sentences:
+        buffer.append(sentence)
+        if len(buffer) >= unit_size:
+            unit = " ".join(buffer[:unit_size]) # Creazione dell'unità unendo le prime `unit_size` frasi del buffer
+            units.append(unit)
+            buffer.pop(0) # Rimozione della prima frase dal buffet (shift)
+    
+    return units
 
 def process_pdf(pdf_path, nlp_model):
-    """Processa il PDF e restituisce tutte le frasi."""
-    document = fitz.open(pdf_path)  # Apri il PDF
-    all_sentences = []
+    
+    """Elaborazione del PDF e restituzione di tutte le frasi."""
+    
+    document = fitz.open(pdf_path)  # Apertura del PDF per ottenere il numero delle pagine
+    num_pages = document.page_count
+    document.close() # Chiusura del documento una volta ottenuto il numero delle pagine
+    
+    all_units = []
 
-    for page_num in range(document.page_count):  # Itera su ogni pagina del PDF
-        page = document[page_num]
-        sentences = extract_sentences_from_page(page, nlp_model)  # Estrai le frasi da questa pagina
-        all_sentences.extend(sentences)  # Aggiungi le frasi all'elenco totale
-
-    document.close()  # Chiudi il PDF
-    return all_sentences
+    with ProcessPoolExecutor() as executor:
+        
+        # Estrazione delle frasi da ciascuna pagina del PDF in parallelo: ciascun processo riceve il nuemro della pagina e il percorso del PDF
+        sentences_per_page = list(executor.map(
+            extract_sentences_from_page, 
+            range(num_pages),
+            [pdf_path] * num_pages,  # Passaggio del percorso PDF a ogni processo
+            [nlp_model] * num_pages  # Passaggio del modello NLP a ogni processo
+        ))
+        
+        # Unione delle frase estratte in un'unica lista
+        all_sentences = [sentence for page_sentences in sentences_per_page for sentence in page_sentences]
+        
+        # Creazione delle unità di testo
+        all_units = create_text_units(all_sentences)
+    
+    return all_units
 
 @app.route(route="http_trigger_chunking")
 def http_trigger_chunking(req: func.HttpRequest) -> func.HttpResponse:
@@ -76,12 +115,12 @@ def http_trigger_chunking(req: func.HttpRequest) -> func.HttpResponse:
     # Percorso del PDF da analizzare
     pdf_path = r"C:\Users\rdell\OneDrive - Politecnico di Torino\Desktop\Reply9\METIS\Chunking\Red_Hat_Enterprise_Linux-8-8.0_Release_Notes-en-US.pdf"
     
-    # Estrazione delle frasi a partire dal PDF
-    sentences = process_pdf(pdf_path, nlp_en)
+    # Creazione delle unità di testo a partire dal PDF
+    text_units = process_pdf(pdf_path, nlp_en)
     
-    # Iterazione su tutte le frasi estrette e log di ogni frase
-    for sent in sentences:
-        logger.info(sent)
+    # Stampa delle unità di testo create
+    for index, unit in enumerate(text_units):
+        logger.info(f"Unità {index+1}: {unit}")
     
     # Connessione a Redis
     client = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD, ssl=True)

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "Chunking/scraping_logs/scraping.log",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1729067838258,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1729067838258,
+            "name": "Commit-0",
+            "content": ""
+        }
+    ]
+}
