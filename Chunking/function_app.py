@@ -6,7 +6,6 @@ import redis
 import spacy
 import fitz # PyMuPDF
 from time import time
-from concurrent.futures import ThreadPoolExecutor
 
 # Configurazione per connettersi a un'istanza di Azure Cache for Redis
 REDIS_HOST = os.getenv('REDIS_HOST', 'metis.redis.cache.windows.net')
@@ -142,11 +141,13 @@ def process_documents(pdf_files, client, nlp_model, logger, doc_name):
     logger.info(f"Avvio dell'elaborazione della documentazione di {doc_name} ...")
     start_time = time()  # Inizio del timer
 
+    results = [] # Per memorizzare i risultati di elaborazione
     messages = []  # Per memorizzare i messaggi di elaborazione
     all_units = []  # Per memorizzare tutte le unità generate dai PDF
 
-    with ThreadPoolExecutor() as executor:
-        results = list(executor.map(lambda pdf: process_pdf_parallel(pdf, client, nlp_model, logger), pdf_files))
+    for pdf in pdf_files:
+        result = process_pdf_parallel(pdf, client, nlp_model, logger)
+        results.append(result)  # Aggiungi il risultato alla lista
 
     for result, units in results:
         messages.append(result)
