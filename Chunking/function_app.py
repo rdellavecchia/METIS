@@ -1,10 +1,12 @@
 import azure.functions as func
 import logging
 import os
-import fitz # PyMuPDF
-import spacy
+import json
 import redis
-from concurrent.futures import ProcessPoolExecutor
+import spacy
+import fitz # PyMuPDF
+from time import time
+from concurrent.futures import ThreadPoolExecutor
 
 # Configurazione per connettersi a un'istanza di Azure Cache for Redis
 REDIS_HOST = os.getenv('REDIS_HOST', 'metis.redis.cache.windows.net')
@@ -44,30 +46,22 @@ app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 # Inizializzazione del logger
 logger = configure_logger()
 
-# Caricamento del modello per l'italiano
-nlp_it = spacy.load('it_core_news_sm')
-# Caricamento del modello per l'inglese
-nlp_en = spacy.load('en_core_web_sm')
+# Caricamento del sentencizer per l'italiano
+nlp_it = spacy.blank('it')
+nlp_it.add_pipe("sentencizer")
+nlp_it.max_length = 2000000
+# Caricamento del sentencizer per l'inglese
+nlp_en = spacy.blank('en')
+nlp_en.add_pipe("sentencizer")
+nlp_en.max_length = 2000000
 
-
-def extract_sentences_from_page(page_number, pdf_path, nlp_model):
-    
-    """Estrazione delle frasi da una singola pagina del PDF usando spaCy."""
-    
-    document = fitz.open(pdf_path) # Apertura del PDF all'interno di ciascun processo
-    
-    page = document.load_page(page_number) # Estrazione della pagina dal PDF
-    text = page.get_text()  # Estrazione del testo da una pagina
-    doc = nlp_model(text)   # Elaborazione del testo con il modello spaCy
-    
-    document.close() # Chiusura del documento
-    
+def extract_sentences_from_text(text, nlp_model):
+    """Estrazione delle frasi da un blocco di testo usando spaCy."""
+    doc = nlp_model(text)   # Elaborazione del testo con il sentencizer spaCy
     return [sent.text for sent in doc.sents]  # Ritorno delle frasi processate
 
 def create_text_units(sentences, unit_size=3):
-    
     """Creazione delle unità di testo costituite da `unit_size` frasi contigue."""
-    
     units = []
     buffer = []
     
@@ -80,50 +74,79 @@ def create_text_units(sentences, unit_size=3):
     
     return units
 
-def process_pdf(pdf_path, nlp_model):
-    
+def extract_text_from_pdf(pdf_path):
+    """Estrazione del testo da un PDF usando PyMuPDF."""
+    try:
+        #Apertura del PDF con PyMuPDF
+        with fitz.open(pdf_path) as pdf_document:
+            text = ""
+            for page_num in range(len(pdf_document)):
+                page = pdf_document.load_page(page_num) # Caricamento della pagina corrente
+                text += page.get_text()  # Estrazione del testo
+        return text
+    except Exception as e:
+        logger.error(f"Errore nell'estrazione del testo dal PDF {pdf_path}: {e}")
+        return ""
+        
+def process_single_pdf(pdf_path, nlp_model):
     """Elaborazione del PDF e restituzione di tutte le frasi."""
+    logger.info(f"Estrazione del contenuto dal PDF: {pdf_path}")
     
-    document = fitz.open(pdf_path)  # Apertura del PDF per ottenere il numero delle pagine
-    num_pages = document.page_count
-    document.close() # Chiusura del documento una volta ottenuto il numero delle pagine
+    # Estrazione del testo dal PDF e restituzione di tutte le unità
+    text = extract_text_from_pdf(pdf_path)
     
-    all_units = []
-
-    with ProcessPoolExecutor() as executor:
-        
-        # Estrazione delle frasi da ciascuna pagina del PDF in parallelo: ciascun processo riceve il nuemro della pagina e il percorso del PDF
-        sentences_per_page = list(executor.map(
-            extract_sentences_from_page, 
-            range(num_pages),
-            [pdf_path] * num_pages,  # Passaggio del percorso PDF a ogni processo
-            [nlp_model] * num_pages  # Passaggio del modello NLP a ogni processo
-        ))
-        
-        # Unione delle frase estratte in un'unica lista
-        all_sentences = [sentence for page_sentences in sentences_per_page for sentence in page_sentences]
-        
-        # Creazione delle unità di testo
-        all_units = create_text_units(all_sentences)
+    if not text:
+        logger.error(f"Nessun testo trovato nel PDF {pdf_path}")
+        return[]
+    
+    # Segmentazione del testo in frasi con spaCy
+    sentences = extract_sentences_from_text(text, nlp_model)
+    
+    # Crazione delle unità di testo
+    all_units = create_text_units(sentences)
     
     return all_units
+
+def process_pdf_parallel(pdf_path, client, nlp_model, logger):
+    '''Elaborazione di un singolo PDF, segmentazione del testo in frasi, salvataggio del risultato su Redis.'''
+    try:
+        units = process_single_pdf(pdf_path, nlp_model) # Estrazione delle frasi    
+        client.set(pdf_path, str(units)) # Caching dei risultati in Redis
+        return f"Elaborazione completata per il PDF: {pdf_path}", units
+    except Exception as e:
+        logger.error(f"Errore nell'elaborazione del PDF {pdf_path}: {e}")
+        return f"Errore per {pdf_path}: {e}", []
+
+def save_all_units_to_single_json(all_units, output_filename="all_units.json"):
+    """Salva tutte le unità estratte da più PDF in un singolo file JSON."""
+    try:
+        # Creazione della directory per il file JSON, se non esiste
+        os.makedirs('./json_units', exist_ok=True)
+        
+        # Path del file JSON
+        json_filepath = os.path.join('./json_units', output_filename)
+        
+        # Struttura delle unità con numero e testo
+        unit_data = [{"numero_unità": i + 1, "testo_unità": unit} for i, unit in enumerate(all_units)]
+        
+        # Salvataggio delle unità in un file JSON
+        with open(json_filepath, 'w', encoding='utf-8') as json_file:
+            json.dump(unit_data, json_file, ensure_ascii=False, indent=4)
+        
+        logger.info(f"File JSON unico salvato: {json_filepath}")
+    
+    except Exception as e:
+        logger.error(f"Errore nel salvataggio del file JSON unico: {e}")
 
 @app.route(route="http_trigger_chunking")
 def http_trigger_chunking(req: func.HttpRequest) -> func.HttpResponse:
     logger.info('Python HTTP trigger function processed a request.')
     
-    # Percorso del PDF da analizzare
-    pdf_path = r"C:\Users\rdell\OneDrive - Politecnico di Torino\Desktop\Reply9\METIS\Chunking\Red_Hat_Enterprise_Linux-8-8.0_Release_Notes-en-US.pdf"
-    
-    # Creazione delle unità di testo a partire dal PDF
-    text_units = process_pdf(pdf_path, nlp_en)
-    
-    # Stampa delle unità di testo create
-    for index, unit in enumerate(text_units):
-        logger.info(f"Unità {index+1}: {unit}")
-    
     # Connessione a Redis
     client = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD, ssl=True)
+    
+    # Pulizia della cache di Redis
+    client.flushdb() # Pulizia del database Redis
     
     # Documentazione di Red Hat 8
     directory_relh8_path = r"C:\Users\rdell\OneDrive - Politecnico di Torino\Desktop\Reply9\METIS\Scraping\RedHat8\src\functions\documentsRelH8"
@@ -142,7 +165,7 @@ def http_trigger_chunking(req: func.HttpRequest) -> func.HttpResponse:
     # Scansione della documentazione di Red Hat 8
     for filename in os.listdir(directory_relh8_path):
         if filename.endswith('.pdf'):
-            pdf_relh8_files.append(filename)
+            pdf_relh8_files.append(os.path.join(directory_relh8_path, filename))
     
     # Scansione della documentazione di Red Hat 9
     for filename in os.listdir(directory_relh9_path):
@@ -153,6 +176,30 @@ def http_trigger_chunking(req: func.HttpRequest) -> func.HttpResponse:
     for filename in os.listdir(directory_ws_path):
         if filename.endswith('.pdf'):
             pdf_ws_files.append(filename)
+    
+    # Elaborazione di ciascun PDF della documentazione di Red Hat 8 in parallelo
+    logger.info("Avvio dell'elaborazione della documentazione di Red Hat 8...")
+    
+    start_time = time() # Inizio del timer
+    
+    messages = [] # Utilizzato per memorizzare i messaggi di elaborazione
+    all_units = [] # Utilizzato per memorizzare tutte le unità generate dai PDF
+    
+    with ThreadPoolExecutor() as executor:
+        results = list(executor.map(lambda pdf: process_pdf_parallel(pdf, client, nlp_en, logger), pdf_relh8_files))
+    
+    for result, units in results:
+        messages.append(result)
+        all_units.extend(units)
+    
+    # Salvataggio di tutte le unità in un unico file JSON
+    save_all_units_to_single_json(all_units)
+    
+    end_time = time() # Fine del timer
+    total_time = end_time - start_time
+    
+    logger.info(f"Tempo totale di esecuzione: {total_time} secondi")
+    logger.info("Fine dell'elaborazione della documentazione di Red Hat 8...")
     
     # Test della connessione
     try:
