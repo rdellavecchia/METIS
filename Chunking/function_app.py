@@ -202,10 +202,10 @@ def http_trigger_chunking(req: func.HttpRequest) -> func.HttpResponse:
             pdf_ws_files.append(os.path.join(directory_ws_path, filename))
     
     # Elaborazione di ciascun PDF della documentazione Red Hat 8
-    process_documents(pdf_relh8_files, client, nlp_en, logger, "Red Hat 8")
+    # process_documents(pdf_relh8_files, client, nlp_en, logger, "Red Hat 8")
 
     # Elaborazione di ciascun PDF della documentazione Red Hat 9 (solo dopo Red Hat 8)
-    process_documents(pdf_relh9_files, client, nlp_en, logger, "Red Hat 9")
+    # process_documents(pdf_relh9_files, client, nlp_en, logger, "Red Hat 9")
 
     # Elaborazione di ciascun PDF della documentazione di Windows Server (solo dopo Red Hat 9)
     process_documents(pdf_ws_files, client, nlp_en, logger, "Windows Server")
