@@ -90,7 +90,7 @@ def extract_text_from_pdf(pdf_path):
         
 def process_single_pdf(pdf_path, nlp_model):
     """Elaborazione del PDF e restituzione di tutte le frasi."""
-    logger.info(f"Estrazione del contenuto dal PDF: {pdf_path}")
+    logger.info(f"Estrazione del contenuto dal PDF: {os.path.basename(pdf_path)}")
     
     # Estrazione del testo dal PDF e restituzione di tutte le unità
     text = extract_text_from_pdf(pdf_path)
@@ -117,14 +117,14 @@ def process_pdf_parallel(pdf_path, client, nlp_model, logger):
         logger.error(f"Errore nell'elaborazione del PDF {pdf_path}: {e}")
         return f"Errore per {pdf_path}: {e}", []
 
-def save_all_units_to_single_json(all_units, output_filename="all_units.json"):
+def save_all_units_to_single_json(all_units, output_filename):
     """Salva tutte le unità estratte da più PDF in un singolo file JSON."""
     try:
         # Creazione della directory per il file JSON, se non esiste
-        os.makedirs('./json_units', exist_ok=True)
+        os.makedirs('./documentation_units', exist_ok=True)
         
         # Path del file JSON
-        json_filepath = os.path.join('./json_units', output_filename)
+        json_filepath = os.path.join('./documentation_units', output_filename)
         
         # Struttura delle unità con numero e testo
         unit_data = [{"numero_unità": i + 1, "testo_unità": unit} for i, unit in enumerate(all_units)]
@@ -137,6 +137,29 @@ def save_all_units_to_single_json(all_units, output_filename="all_units.json"):
     
     except Exception as e:
         logger.error(f"Errore nel salvataggio del file JSON unico: {e}")
+
+def process_documents(pdf_files, client, nlp_model, logger, doc_name):
+    logger.info(f"Avvio dell'elaborazione della documentazione di {doc_name} ...")
+    start_time = time()  # Inizio del timer
+
+    messages = []  # Per memorizzare i messaggi di elaborazione
+    all_units = []  # Per memorizzare tutte le unità generate dai PDF
+
+    with ThreadPoolExecutor() as executor:
+        results = list(executor.map(lambda pdf: process_pdf_parallel(pdf, client, nlp_model, logger), pdf_files))
+
+    for result, units in results:
+        messages.append(result)
+        all_units.extend(units)
+
+    # Salvataggio di tutte le unità in un unico file JSON
+    save_all_units_to_single_json(all_units, f'all_units_{doc_name.lower()}.json')
+
+    end_time = time()  # Fine del timer
+    total_time = end_time - start_time
+
+    logger.info(f"Tempo totale di esecuzione per l'elaborazione della documentazione di {doc_name}: {total_time} secondi")
+    logger.info(f"Fine dell'elaborazione della documentazione di {doc_name}")
 
 @app.route(route="http_trigger_chunking")
 def http_trigger_chunking(req: func.HttpRequest) -> func.HttpResponse:
@@ -170,36 +193,21 @@ def http_trigger_chunking(req: func.HttpRequest) -> func.HttpResponse:
     # Scansione della documentazione di Red Hat 9
     for filename in os.listdir(directory_relh9_path):
         if filename.endswith('.pdf'):
-            pdf_relh9_files.append(filename)
+            pdf_relh9_files.append(os.path.join(directory_relh9_path, filename))
     
     # Scansione della documentazione di Windows Server
     for filename in os.listdir(directory_ws_path):
         if filename.endswith('.pdf'):
-            pdf_ws_files.append(filename)
+            pdf_ws_files.append(os.path.join(directory_ws_path, filename))
     
-    # Elaborazione di ciascun PDF della documentazione di Red Hat 8 in parallelo
-    logger.info("Avvio dell'elaborazione della documentazione di Red Hat 8...")
-    
-    start_time = time() # Inizio del timer
-    
-    messages = [] # Utilizzato per memorizzare i messaggi di elaborazione
-    all_units = [] # Utilizzato per memorizzare tutte le unità generate dai PDF
-    
-    with ThreadPoolExecutor() as executor:
-        results = list(executor.map(lambda pdf: process_pdf_parallel(pdf, client, nlp_en, logger), pdf_relh8_files))
-    
-    for result, units in results:
-        messages.append(result)
-        all_units.extend(units)
-    
-    # Salvataggio di tutte le unità in un unico file JSON
-    save_all_units_to_single_json(all_units)
-    
-    end_time = time() # Fine del timer
-    total_time = end_time - start_time
-    
-    logger.info(f"Tempo totale di esecuzione: {total_time} secondi")
-    logger.info("Fine dell'elaborazione della documentazione di Red Hat 8...")
+    # Elaborazione di ciascun PDF della documentazione Red Hat 8
+    process_documents(pdf_relh8_files, client, nlp_en, logger, "Red Hat 8")
+
+    # Elaborazione di ciascun PDF della documentazione Red Hat 9 (solo dopo Red Hat 8)
+    process_documents(pdf_relh9_files, client, nlp_en, logger, "Red Hat 9")
+
+    # Elaborazione di ciascun PDF della documentazione di Windows Server (solo dopo Red Hat 9)
+    process_documents(pdf_ws_files, client, nlp_en, logger, "Windows Server")
     
     # Test della connessione
     try:
