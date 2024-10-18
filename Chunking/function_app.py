@@ -88,7 +88,7 @@ def extract_text_from_pdf(pdf_path):
         return ""
         
 def process_single_pdf(pdf_path, nlp_model):
-    """Elaborazione del PDF e restituzione di tutte le frasi."""
+    """Elaborazione del PDF e rilascio della memoria non appena completata."""
     logger.info(f"Estrazione del contenuto dal PDF: {os.path.basename(pdf_path)}")
     
     # Estrazione del testo dal PDF e restituzione di tutte le unità
@@ -101,17 +101,29 @@ def process_single_pdf(pdf_path, nlp_model):
     # Segmentazione del testo in frasi con spaCy
     sentences = extract_sentences_from_text(text, nlp_model)
     
+    # Liberazione della memoria utilizzata dal testo appena processato
+    del text
+    
     # Crazione delle unità di testo
     all_units = create_text_units(sentences)
     
+    # Liberazione della memoria utilizzata dalle frasi una volta create le unità di testo
+    del sentences
+    
     return all_units
 
-def process_pdf_parallel(pdf_path, client, nlp_model, logger):
+def process_units(pdf_path, client, nlp_model, logger):
     '''Elaborazione di un singolo PDF, segmentazione del testo in frasi, salvataggio del risultato su Redis.'''
     try:
-        units = process_single_pdf(pdf_path, nlp_model) # Estrazione delle frasi    
+        cached_result = client.get(pdf_path)
+        if cached_result:
+            logger.info(f"Risultato recuperato da Redis per {pdf_path}")
+            return f"Recuperato da cache: {pdf_path}", json.loads(cached_result)
+        
+        units = retry(process_single_pdf, retries=3, delay=2, pdf_path=pdf_path, nlp_model=nlp_model) # Estrazione delle frasi    
         client.set(pdf_path, str(units)) # Caching dei risultati in Redis
         return f"Elaborazione completata per il PDF: {pdf_path}", units
+    
     except Exception as e:
         logger.error(f"Errore nell'elaborazione del PDF {pdf_path}: {e}")
         return f"Errore per {pdf_path}: {e}", []
@@ -137,7 +149,8 @@ def save_all_units_to_single_json(all_units, output_filename):
     except Exception as e:
         logger.error(f"Errore nel salvataggio del file JSON unico: {e}")
 
-def process_documents(pdf_files, client, nlp_model, logger, doc_name):
+def process_documentation(pdf_files, client, nlp_model, logger, doc_name):
+    '''Funzione per processare la documentazione passata come parametro.'''
     logger.info(f"Avvio dell'elaborazione della documentazione di {doc_name} ...")
     start_time = time()  # Inizio del timer
 
@@ -146,15 +159,25 @@ def process_documents(pdf_files, client, nlp_model, logger, doc_name):
     all_units = []  # Per memorizzare tutte le unità generate dai PDF
 
     for pdf in pdf_files:
-        result = process_pdf_parallel(pdf, client, nlp_model, logger)
-        results.append(result)  # Aggiungi il risultato alla lista
+        try:
+            result, units = process_units(pdf, client, nlp_model, logger)
+            results.append((result, units))
+            messages.append(result)
+            all_units.extend(units)
+        except redis.ConnectionError as conn_err:
+            logger.error(f"Errore di connessione a Redis per il PDF {pdf}: {conn_err}")
+        except fitz.FileDataError as file_err:
+            logger.error(f"Errore durante la lettura del PDF {pdf}: {file_err}")
+        except Exception as e:
+            logger.error(f"Errore sconosciuto durante l'elaborazione del PDF {pdf}: {e}")
 
-    for result, units in results:
-        messages.append(result)
-        all_units.extend(units)
-
-    # Salvataggio di tutte le unità in un unico file JSON
-    save_all_units_to_single_json(all_units, f'all_units_{doc_name.lower()}.json')
+    try:
+        # Salvataggio di tutte le unità in un unico file JSON
+        save_all_units_to_single_json(all_units, f'all_units_{doc_name.lower()}.json')
+    except IOError as io_err:
+        logger.error(f"Errore nel salvataggio del file JSON per {doc_name}: {io_err}")
+    except Exception as e:
+        logger.error(f"Errore sconosciuto nel salvataggio delle unità di {doc_name}: {e}")    
 
     end_time = time()  # Fine del timer
     total_time = end_time - start_time
@@ -162,9 +185,21 @@ def process_documents(pdf_files, client, nlp_model, logger, doc_name):
     logger.info(f"Tempo totale di esecuzione per l'elaborazione della documentazione di {doc_name}: {total_time} secondi")
     logger.info(f"Fine dell'elaborazione della documentazione di {doc_name}")
 
+def retry(func, retries=3, delay=2, *args, **kwargs):
+    """Funzione di utilità per tentare nuovamente una funzione in caso di errore."""
+    for attempt in range(retries):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            if attempt < retries - 1:
+                logger.warning(f"Tentativo {attempt + 1} fallito: {e}. Riprovo tra {delay} secondi...")
+                time.sleep(delay)
+            else:
+                logger.error(f"Fallimento dopo {retries} tentativi: {e}")
+                raise
+
 @app.route(route="http_trigger_chunking")
 def http_trigger_chunking(req: func.HttpRequest) -> func.HttpResponse:
-    logger.info('Python HTTP trigger function processed a request.')
     
     # Connessione a Redis
     client = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD, ssl=True)
@@ -202,13 +237,13 @@ def http_trigger_chunking(req: func.HttpRequest) -> func.HttpResponse:
             pdf_ws_files.append(os.path.join(directory_ws_path, filename))
     
     # Elaborazione di ciascun PDF della documentazione Red Hat 8
-    # process_documents(pdf_relh8_files, client, nlp_en, logger, "Red Hat 8")
+    process_documentation(pdf_relh8_files, client, nlp_en, logger, "Red Hat 8")
 
     # Elaborazione di ciascun PDF della documentazione Red Hat 9 (solo dopo Red Hat 8)
-    # process_documents(pdf_relh9_files, client, nlp_en, logger, "Red Hat 9")
+    # process_documentation(pdf_relh9_files, client, nlp_en, logger, "Red Hat 9")
 
     # Elaborazione di ciascun PDF della documentazione di Windows Server (solo dopo Red Hat 9)
-    process_documents(pdf_ws_files, client, nlp_en, logger, "Windows Server")
+    # process_documentation(pdf_ws_files, client, nlp_en, logger, "Windows Server")
     
     # Test della connessione
     try:
