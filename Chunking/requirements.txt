@@ -6,3 +6,4 @@ azure-functions
 redis
 spacy
 pymuPDF
+sentence_transformers
