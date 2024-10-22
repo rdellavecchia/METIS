@@ -26,7 +26,7 @@ nlp_en.add_pipe("sentencizer")
 nlp_en.max_length = 2000000
 
 # Caricamento del modello di SentenceTransformer
-embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+embedding_model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
 
 def configure_logger():
     """Configurazione del logger di sistema."""
@@ -34,10 +34,10 @@ def configure_logger():
     if not logger.handlers:  # Evita duplicati
         logger.setLevel(logging.INFO)
 
-        log_directory = './scraping_logs'
+        log_directory = './chunking_logs'
         os.makedirs(log_directory, exist_ok=True)
 
-        info_handler = logging.FileHandler(os.path.join(log_directory, 'scraping.log'), encoding='utf-8')
+        info_handler = logging.FileHandler(os.path.join(log_directory, 'chunking.log'), encoding='utf-8')
         error_handler = logging.FileHandler(os.path.join(log_directory, 'error.log'), encoding='utf-8')
 
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
@@ -93,14 +93,36 @@ def extract_text_from_pdf(pdf_path):
         logger.error(f"Errore durante l'estrazione del testo dal PDF {os.path.basename(pdf_path)}: {e}")
         return ""
 
-def generate_embeddings(units, model):
+def generate_embeddings(units, model, batch_size=1024):
     """Generazione (e associazione) degli embeddings per ciascuna unità (a ciascuna unità)."""
     texts = [unit['text'] for unit in units]
-    embeddings = model.encode(texts, convert_to_tensor=True)
+    embeddings = []
+
+    # Elaborazione sequenziale per batch
+    for i in range(0, len(texts), batch_size):
+        batch_texts = texts[i:i + batch_size]
+        batch_embeddings = model.encode(batch_texts, convert_to_tensor=True).tolist()
+        embeddings.extend(batch_embeddings)
+
+    # Assegnazione degli embeddings alle unità
     for i, unit in enumerate(units):
-        unit["combined_sentence_embedding"] = embeddings[i].tolist()
+        unit["combined_sentence_embedding"] = embeddings[i]
+
     return units
 
+def generate_embeddings_for_chunks(chunks, model, batch_size=128):
+    """Generazione degli embeddings per ciascun chunk di testo."""
+    embeddings = []
+    
+    # Elaborazione sequenziale per batch
+    for i in range(0, len(chunks), batch_size):
+        batch_chunks = chunks[i:i + batch_size]
+        batch_embeddings = model.encode(batch_chunks, convert_to_tensor=True).tolist()
+        embeddings.extend(batch_embeddings)
+    
+    return embeddings
+    
+    
 def calculate_distance(units):
     """Calcolo delle distanze tra embeddings consecutivi mediante la similarità del coseno"""
     distances = []
@@ -121,7 +143,7 @@ def create_chunks_based_on_distances(units, distances, pdf_file, logger):
     """Creazione dei chunk sualla base della distanza e del 95° percentile."""
     breakpoint = np.percentile(distances, 95) # Calcolo del 95° percentile per determinel il breakpoint
     indices_above_threshold = [i for i, d in enumerate(distances) if d > breakpoint] # Ricerca degli indici in cui le distanze sono al di sopra della soglia
-    logger.info(f"Trovati {len(indices_above_threshold)} chunk per {pdf_file}")
+    logger.info(f"Trovati {len(indices_above_threshold)} chunk per {os.path.basename(pdf_file)}")
     
     chunks = []
     start_index = 0
@@ -144,7 +166,7 @@ def process_single_pdf(pdf_path, nlp_model):
     """Elaborazione del PDF e rilascio della memoria non appena completata."""
     text = extract_text_from_pdf(pdf_path) # Estrazione del testo dal PDF e restituzione di tutte le unità
     if not text:
-        logger.error(f"Nessun testo trovato nel PDF {pdf_path}")
+        logger.error(f"Nessun testo trovato nel PDF {os.path.basename(pdf_path)}")
         return[]
     
     sentences = extract_sentences_with_indices(text, nlp_model) # Segmentazione del testo in frasi con spaCy
@@ -159,8 +181,8 @@ def process_units(pdf_path, client, nlp_model, logger):
     try:
         cached_result = client.get(pdf_path)
         if cached_result:
-            logger.info(f"Risultato recuperato da Redis per {pdf_path}")
-            return f"Recuperato da cache: {pdf_path}", json.loads(cached_result)
+            logger.info(f"Risultato recuperato da Redis per {os.path.basename(pdf_path)}")
+            return f"Recuperato da cache: {os.path.basename(pdf_path)}", json.loads(cached_result)
         
         # Estrazione delle frasi dal PDF e generazione delle unità
         units = process_single_pdf(pdf_path, nlp_model)
@@ -174,8 +196,11 @@ def process_units(pdf_path, client, nlp_model, logger):
         # Creazione dei chunk sulla base delle distanze ottenute
         chunks = create_chunks_based_on_distances(units_with_distances, distances, pdf_path, logger)
         
-        # Caching dei chunk in Redis: `pdf_path` utilizzato come chiave per accedere ai chunk; `json.dumps(chunks)` converte la lista di chunk in una stringa JSON 
-        client.set(pdf_path, json.dumps(chunks))
+        # Ricalcolo degli embeddings per i chunk
+        chunk_embeddings = generate_embeddings_for_chunks(chunks, embedding_model)
+        
+        # Caching dei chunk in Redis: `pdf_path` utilizzato come chiave per accedere ai chunk; `json.dumps(chunk_embeddings)` converte la lista di chunk in una stringa JSON 
+        client.set(pdf_path, json.dumps(chunk_embeddings))
         
         return f"Elaborazione completata per il PDF: {pdf_path}", chunks
     
@@ -201,6 +226,30 @@ def process_documentation(pdf_files, client, nlp_model, logger, doc_name):
     
     logger.info(f"Elaborazione completata per {doc_name} in {time() - start_time} secondi")
 
+def get_redis_keys_info(client):
+    """Recupera il numero totale delle chiavi memorizzate in Redis e l'elenco delle chiavi."""
+    try:
+        keys = list(client.scan_iter())  # Recupera tutte le chiavi da Redis
+        
+        # Verifica se ci sono chiavi
+        if keys:
+            keys_str = [key.decode('utf-8') for key in keys]  # Decodifica tutte le chiavi in stringhe
+            total_keys = len(keys_str)  # Numero totale di chiavi
+            
+            # Restituisce il numero delle chiavi e l'elenco come JSON
+            return json.dumps({
+                "total_keys": total_keys,
+                "keys": keys_str
+            }, indent=4)
+        else:
+            return json.dumps({
+                "message": "Nessuna chiave trovata in Redis"
+            }, indent=4)
+        
+    except Exception as e:
+        logger.error(f"Errore durante il recupero delle chiavi da Redis: {e}")
+        return json.dumps({"error": str(e)}, indent=4)
+
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
 @app.route(route="http_trigger_chunking")
@@ -210,7 +259,7 @@ def http_trigger_chunking(req: func.HttpRequest) -> func.HttpResponse:
     client = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD, ssl=True)
     
     # Pulizia della cache di Redis
-    client.flushdb() # Pulizia del database Redis
+    # client.flushdb() -> Pulizia del database Redis
     
     # Documentazione di Red Hat 8
     directory_relh8_path = r"C:\Users\rdell\OneDrive - Politecnico di Torino\Desktop\Reply9\METIS\Scraping\RedHat8\src\functions\documentsRelH8"
@@ -240,7 +289,8 @@ def http_trigger_chunking(req: func.HttpRequest) -> func.HttpResponse:
         
         if client.ping():
             logger.info("Connessione a Redis riuscita!")
-            return func.HttpResponse("Connessione a Redis riuscita! Ciao Raffaele, benvenuto!", status_code=200)
+            redis_keys = get_redis_keys_info(client)
+            return func.HttpResponse(redis_keys, status_code=200, mimetype="application/json")
         
     except Exception as e:
         
