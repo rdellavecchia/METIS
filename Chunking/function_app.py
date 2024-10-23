@@ -93,9 +93,12 @@ def extract_text_from_pdf(pdf_path):
         logger.error(f"Errore durante l'estrazione del testo dal PDF {os.path.basename(pdf_path)}: {e}")
         return ""
 
-def generate_embeddings(units, model, batch_size=1024):
+def generate_embeddings(units, model, batch_size=2048):
     """Generazione (e associazione) degli embeddings per ciascuna unità (a ciascuna unità)."""
     texts = [unit['text'] for unit in units]
+    if len(texts) == 0:
+        return[]
+    
     embeddings = []
 
     # Elaborazione sequenziale per batch
@@ -104,22 +107,41 @@ def generate_embeddings(units, model, batch_size=1024):
         batch_embeddings = model.encode(batch_texts, convert_to_tensor=True).tolist()
         embeddings.extend(batch_embeddings)
 
+    if len(embeddings) != len(units):
+        logger.error("La lunghezza degli embeddings non corrisponde a quella delle unità di testo.")
+        return []
+
     # Assegnazione degli embeddings alle unità
     for i, unit in enumerate(units):
         unit["combined_sentence_embedding"] = embeddings[i]
 
     return units
 
-def generate_embeddings_for_chunks(chunks, model, batch_size=128):
+def generate_embeddings_for_chunks(chunks, model, batch_size=256):
     """Generazione degli embeddings per ciascun chunk di testo."""
+    if len(chunks) == 0:
+        return []
+    
     embeddings = []
     
     # Elaborazione sequenziale per batch
     for i in range(0, len(chunks), batch_size):
         batch_chunks = chunks[i:i + batch_size]
+        
+        if len(batch_chunks) == 0:
+            continue
+        
         batch_embeddings = model.encode(batch_chunks, convert_to_tensor=True).tolist()
+        
+        if len(batch_embeddings) != len(batch_chunks):
+            logger.error(f"Errore nella generazione degli embeddings: mismatch tra chunk ({len(batch_chunks)}) e embeddings ({len(batch_embeddings)}) nel batch {i}.")
+            continue
+        
         embeddings.extend(batch_embeddings)
     
+    if len(embeddings) == 0:
+        return []
+
     return embeddings
     
     
@@ -165,13 +187,20 @@ def create_chunks_based_on_distances(units, distances, pdf_file, logger):
 def process_single_pdf(pdf_path, nlp_model):
     """Elaborazione del PDF e rilascio della memoria non appena completata."""
     text = extract_text_from_pdf(pdf_path) # Estrazione del testo dal PDF e restituzione di tutte le unità
-    if not text:
+    if not text.strip():
         logger.error(f"Nessun testo trovato nel PDF {os.path.basename(pdf_path)}")
         return[]
     
     sentences = extract_sentences_with_indices(text, nlp_model) # Segmentazione del testo in frasi con spaCy
+    if len(sentences) == 0:
+        return []
+    
     del text # Liberazione della memoria utilizzata dal testo appena processato
+    
     all_units = create_text_units_with_indices(sentences) # Crazione delle unità di testo
+    if len(all_units) == 0:
+        return []
+    
     del sentences # Liberazione della memoria utilizzata dalle frasi una volta create le unità di testo
     
     return all_units
@@ -186,18 +215,28 @@ def process_units(pdf_path, client, nlp_model, logger):
         
         # Estrazione delle frasi dal PDF e generazione delle unità
         units = process_single_pdf(pdf_path, nlp_model)
+        if not units or len(units) == 0:
+            return f"Nessuna unità trovata nel PDF: {os.path.basename(pdf_path)}", []
         
         # Generazione degli embeddings
         units_with_embeddings = generate_embeddings(units, embedding_model)
+        if not units_with_embeddings or len(units_with_embeddings) == 0:
+            return f"Nessun embedding generato per {os.path.basename(pdf_path)}", []
         
         # Calcolo delle distanze tra gli embeddings consecutivi
         distances, units_with_distances = calculate_distance(units_with_embeddings)
+        if not distances or len(distances) == 0 or not units_with_distances or len(units_with_distances) == 0:
+            return f"Errore nel calcolo delle distanze per {os.path.basename(pdf_path)}", []
         
         # Creazione dei chunk sulla base delle distanze ottenute
         chunks = create_chunks_based_on_distances(units_with_distances, distances, pdf_path, logger)
+        if not chunks or len(chunks) == 0:
+            return f"Nessun chunk creato per {os.path.basename(pdf_path)}", []
         
         # Ricalcolo degli embeddings per i chunk
         chunk_embeddings = generate_embeddings_for_chunks(chunks, embedding_model)
+        if not chunk_embeddings or len(chunk_embeddings) == 0:
+            return f"Nessun embedding generato per i chunk di {os.path.basename(pdf_path)}", []
         
         # Caching dei chunk in Redis: `pdf_path` utilizzato come chiave per accedere ai chunk; `json.dumps(chunk_embeddings)` converte la lista di chunk in una stringa JSON 
         client.set(pdf_path, json.dumps(chunk_embeddings))
@@ -279,10 +318,10 @@ def http_trigger_chunking(req: func.HttpRequest) -> func.HttpResponse:
     process_documentation(pdf_relh8_files, client, nlp_en, logger, "Red Hat 8")
 
     # Elaborazione di ciascun PDF della documentazione Red Hat 9 (solo dopo Red Hat 8)
-    # process_documentation(pdf_relh9_files, client, nlp_en, logger, "Red Hat 9")
+    process_documentation(pdf_relh9_files, client, nlp_en, logger, "Red Hat 9")
 
     # Elaborazione di ciascun PDF della documentazione di Windows Server (solo dopo Red Hat 9)
-    # process_documentation(pdf_ws_files, client, nlp_en, logger, "Windows Server")
+    process_documentation(pdf_ws_files, client, nlp_en, logger, "Windows Server")
     
     # Test della connessione
     try:
